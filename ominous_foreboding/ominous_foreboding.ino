@@ -4,7 +4,7 @@
  *  - The sound of things to come. 
  *  Tested on ItsyBitsy M4 and NeoTrellis M4
  *  
- *  6 Jan 2022
+ *  6 Jan 2022 - @todbot Tod Kurt
  */
  
 #include <Audio.h>
