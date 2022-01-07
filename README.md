@@ -25,6 +25,6 @@ Mostly on SAMD51 (M4) boards using the
 
 - In Arduino Library Manager, search for "Audio Adafruit Fork" and install the result
 - Most Teensy examples will work, except:
--- The only supported Output I've tested is "
+  - The only supported Output I've tested is "AudioOutputAnalogStereo"
 
 
