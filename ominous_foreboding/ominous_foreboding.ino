@@ -61,7 +61,7 @@ AudioConnection          patchCord11(mixerR, 0, audioOut, 1);
 #define NUM_VOICES 4
 
 AudioSynthWaveform *waves[] = {
-  &wave0, &wave1, &wave2, &wave3
+  &wave0, &wave1, &wave2, &wave3  // we don't need a data struct yet, but this is experiment
 };
 
 uint8_t notes[] = {43, 43, 44, 41, }; // possible notes to play MIDI G2, G2#, F2
@@ -74,8 +74,8 @@ uint32_t lastMillis = 0;
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
-  Serial.println("AdaTAL_testing hello");
+  //while (!Serial);
+  Serial.println("ominous_foreboding hello");
 
   AudioMemory(120);
 
@@ -88,7 +88,7 @@ void setup() {
   env0.sustain(0.6);
   env0.release(1200);
 
-  Serial.println("setup done");
+  Serial.println("ominous_foreboding setup done");
 
   // Initialize processor and memory measurements
   AudioProcessorUsageMaxReset();
