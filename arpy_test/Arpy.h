@@ -60,15 +60,13 @@ class Arpy
     note_duration = 0.5 * per_beat_millis; // 50% gate  FIXME: make 0.5 a param
   }
 
-  void setTransposeSteps(uint8_t steps) {  tr_steps = steps; }
+  void setTransposeSteps(uint8_t steps) {  if( steps > 0) { tr_steps = steps; } }
   void setTransposeDistance(uint8_t dist) {  tr_dist = dist; }
     
-  void setArp(uint8_t arp_id) {
-    arp_id = arp_id % arp_count;    
-  }
-  void nextArp() {
-    arp_id = (arp_id+1) % arp_count;    
-  }
+  void setArpId(uint8_t arp_id) { arp_id = arp_id % arp_count;  }
+  uint8_t getArpId() { return arp_id; }
+  
+  void nextArpId() {  arp_id = (arp_id+1) % arp_count;  } // a little convenience function
 
   void update() { update(0); }
   

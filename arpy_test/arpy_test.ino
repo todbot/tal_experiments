@@ -38,6 +38,7 @@ AudioSynthWaveform *waves[] = {
 int filterf_max = 4000;
 int filterf = 2000;
 uint32_t lastControlMillis=0;
+uint8_t arp_octaves = 1;
 
 Arpy arp = Arpy();
 Bounce butA = Bounce();
@@ -111,14 +112,14 @@ void loop() {
   butB.update();
  
   if( butA.fell() ) { // pressed
-    Serial.println("next arp");
-    arp.nextArp();
+    arp.nextArpId();
+    Serial.printf("picking next arp: %d\n", arp.getArpId());
   }
 
   if( butB.fell() ) {
-    Serial.println("----- rand arp steps ");
-    uint8_t r = random(3)+1;
-    arp.setTransposeSteps( r );
+    arp_octaves = (arp_octaves+1) % 3 + 1;
+    arp.setTransposeSteps( arp_octaves );
+    Serial.printf("arp steps:%d\n",arp_octaves);
   }
   
   if( millis() - lastControlMillis > 20 ) { 
