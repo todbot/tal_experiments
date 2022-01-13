@@ -24,7 +24,7 @@ class Arpy
     int8_t arps[7][4] = { 
       {0, 4, 7, 12},    // major
       {0, 3, 7, 10},    // minor 7th 
-      {0, 7, 12,0},     // 7 Power 5th
+      {0, 5, 7, 12},    // Suspended 4th
       {0, 12, 0, -12},  // octaves
       {0, 12, 24, -12}, // octaves 2
       {0, -12, -12, 0}, // octaves 3 (bass)

@@ -1,19 +1,25 @@
 /**
- * arpy.ino -- 
+ * arpy.ino -- Play with arps
+ * 
  *  
  *  Tested on ItsyBitsy M4 and NeoTrellis M4
  *  
  *  Controls:
  *   - knobA on A2 controls root note
  *   - knobB on A3 controls BPM
+ *   - knobC on A4 controls filter frequency
  *   - buttonA on D9 controls arp pattern switching
  *   - buttonB on D7 controls arp octave count
  *  
+ *  Outputs:
+ *   - Audio on A0 & A1
+ *   - MIDI USB of notes played
+ * 
  *  Libraries:
  *  - Uses Adafruit fork of Teensy Audio Library
  *  - Uses Adafruit_TinyUSB library and TinyUSB USB stack ("Tools" -> "USB Stack")
  *  
- *  6 Jan 2022 - @todbot Tod Kurt
+ *  12 Jan 2022 - @todbot Tod Kurt
  */
  
 #include <Audio.h>
@@ -29,6 +35,7 @@ const int dacLPin  = 0;  // A0 // audio out assumed by TAL
 const int dacRPin  = 1;  // A1 // audio out assumed by TAL
 const int knobAPin = 2;  // A2
 const int knobBPin = 3;  // A3
+const int knobCPin = 4;  // A4
 const int butBPin  = 7;  // 
 const int butAPin  = 9;  // 
 
@@ -44,7 +51,9 @@ AudioSynthWaveform *waves[] = {
 int filterf_max = 4000;
 int filterf = 2000;
 uint32_t lastControlMillis=0;
+
 uint8_t arp_octaves = 1;
+uint8_t root_note;
 
 Arpy arp = Arpy();
 Bounce butA = Bounce();
@@ -58,6 +67,7 @@ void setup() {
 
   pinMode( knobAPin, INPUT);
   pinMode( knobBPin, INPUT);
+  pinMode( knobCPin, INPUT);
   butA.attach( butAPin, INPUT_PULLUP);
   butB.attach( butBPin, INPUT_PULLUP);
   
@@ -70,12 +80,13 @@ void setup() {
   AudioMemory(120);
 
   filter0.frequency(filterf_max);
+  filter0.resonance(0.5);
   
   env0.attack(20);
-  env0.hold(200);
-  env0.decay(200);
-  env0.sustain(0.1);
-  env0.release(200);
+  env0.hold(5);
+  env0.decay(20);
+  env0.sustain(1.0);
+  env0.release(100);
 
   // Initialize processor and memory measurements
   AudioProcessorUsageMaxReset();
@@ -133,18 +144,24 @@ void loop() {
     
     int knobA = analogRead(knobAPin);
     int knobB = analogRead(knobBPin);
-    uint8_t root_note = map( knobA, 0,1023, 24, 84);
-    int bpm = map( knobB, 0,1023, 100, 5000 );
+    int knobC = analogRead(knobCPin);
+    
+    root_note = map( knobA, 0,1023, 36, 72);
+    int bpm = map( knobB, 0,1023, 100, 3000 );
+    filterf_max = map( knobC, 0,1023, 30, 8000);
+
+    filter0.frequency(filterf_max);
     
     arp.setRootNote( root_note );
     arp.setBPM( bpm );
     
-    //Serial.printf("knobA:%d knobB:%d \t root:%d bpm:%d\n", knobA, knobB, root_note, bpm);
+    //Serial.printf("knobA:%d knobB:%d knobC:%d \t root:%d bpm:%d filter:%d\n", 
+    //                knobA, knobB, knobC, root_note, bpm, filterf_max);
     
-    // Filter "envelope"
-    // simple ramp down LFO on frequency
-    filter0.frequency(filterf);
-    if( filterf>30) { filterf = filterf * 0.99; };
+//     Filter "envelope"
+//     simple ramp down LFO on frequency
+//    filter0.frequency(filterf);
+//    if( filterf>30) { filterf = filterf * 0.80; };
 
   }
   
