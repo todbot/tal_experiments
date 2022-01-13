@@ -3,6 +3,12 @@
  *  
  *  Tested on ItsyBitsy M4 and NeoTrellis M4
  *  
+ *  Controls:
+ *   - knobA on A2 controls root note
+ *   - knobB on A3 controls BPM
+ *   - buttonA on D9 controls arp pattern switching
+ *   - buttonB on D7 controls arp octave count
+ *  
  *  Libraries:
  *  - Uses Adafruit fork of Teensy Audio Library
  *  - Uses Adafruit_TinyUSB library and TinyUSB USB stack ("Tools" -> "USB Stack")
@@ -48,8 +54,8 @@ void setup() {
   MIDIusb.begin(MIDI_CHANNEL_OMNI);
   Serial.begin(115200);
   MIDIusb.turnThruOff();
-  delay(1000); // it's hard getting started i the morning
-  
+  delay(1000); // it's hard getting started in the morning
+
   pinMode( knobAPin, INPUT);
   pinMode( knobBPin, INPUT);
   butA.attach( butAPin, INPUT_PULLUP);
@@ -63,7 +69,7 @@ void setup() {
   
   AudioMemory(120);
 
-  filter0.frequency(4000);
+  filter0.frequency(filterf_max);
   
   env0.attack(20);
   env0.hold(200);
@@ -82,15 +88,15 @@ void noteOn(uint8_t note) {
   Serial.printf("noteOn: note:%d\n", note);
   waves[0]->begin( 0.9, tune_frequencies2_PGM[note], WAVEFORM_SAWTOOTH);
   waves[1]->begin( 0.9, tune_frequencies2_PGM[note] * 1.01, WAVEFORM_SAWTOOTH); // detune
-  waves[2]->begin( 0.9, tune_frequencies2_PGM[note] * 1.02, WAVEFORM_SAWTOOTH); // detune
-  waves[3]->begin( 0.9, tune_frequencies2_PGM[note] * 1.03, WAVEFORM_SAWTOOTH); // detune
+  waves[2]->begin( 0.9, tune_frequencies2_PGM[note] * 1.015, WAVEFORM_SAWTOOTH); // detune
+  waves[3]->begin( 0.9, tune_frequencies2_PGM[note] * 1.01, WAVEFORM_SAWTOOTH); // detune
   filterf = filterf_max;
   filter0.frequency(filterf);
   env0.noteOn();
 }
 
 void noteOff(uint8_t note) {
-  Serial.printf("noteOff: note:%d\n", note);
+  //Serial.printf("noteOff: note:%d\n", note);
   env0.noteOff();
 }
 
@@ -117,7 +123,7 @@ void loop() {
   }
 
   if( butB.fell() ) {
-    arp_octaves = (arp_octaves+1) % 3 + 1;
+    arp_octaves = arp_octaves + 1; if( arp_octaves==4) { arp_octaves=1; }
     arp.setTransposeSteps( arp_octaves );
     Serial.printf("arp steps:%d\n",arp_octaves);
   }
@@ -138,7 +144,7 @@ void loop() {
     // Filter "envelope"
     // simple ramp down LFO on frequency
     filter0.frequency(filterf);
-    if( filterf>30) { filterf = filterf * 0.98; };
+    if( filterf>30) { filterf = filterf * 0.99; };
 
   }
   
