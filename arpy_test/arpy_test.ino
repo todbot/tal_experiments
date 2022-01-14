@@ -48,8 +48,9 @@ AudioSynthWaveform *waves[] = {
   &wave0, &wave1, &wave2, &wave3
 };
 
-int filterf_max = 4000;
-int filterf = 2000;
+int filterf_max = 6000;
+int filterf = filterf_max;
+
 uint32_t lastControlMillis=0;
 
 uint8_t arp_octaves = 1;
@@ -75,6 +76,7 @@ void setup() {
   arp.setNoteOffHandler(noteOff);
   arp.setRootNote( 60 );
   arp.setBPM( 100 );
+  arp.setGateTime( 0.75 ); // percentage of bpm
   arp.on();
   
   AudioMemory(120);
@@ -82,10 +84,10 @@ void setup() {
   filter0.frequency(filterf_max);
   filter0.resonance(0.5);
   
-  env0.attack(20);
-  env0.hold(5);
-  env0.decay(20);
-  env0.sustain(1.0);
+  env0.attack(10);
+  env0.hold(2);
+  env0.decay(100);
+  env0.sustain(0.5);
   env0.release(100);
 
   // Initialize processor and memory measurements
@@ -95,12 +97,15 @@ void setup() {
   Serial.println("arpy test setup done");
 }
 
+int waveform = WAVEFORM_SAWTOOTH;
+
 void noteOn(uint8_t note) {
   Serial.printf("noteOn: note:%d\n", note);
-  waves[0]->begin( 0.9, tune_frequencies2_PGM[note], WAVEFORM_SAWTOOTH);
-  waves[1]->begin( 0.9, tune_frequencies2_PGM[note] * 1.01, WAVEFORM_SAWTOOTH); // detune
-  waves[2]->begin( 0.9, tune_frequencies2_PGM[note] * 1.015, WAVEFORM_SAWTOOTH); // detune
-  waves[3]->begin( 0.9, tune_frequencies2_PGM[note] * 1.01, WAVEFORM_SAWTOOTH); // detune
+  digitalWrite(LED_BUILTIN, HIGH);
+  waves[0]->begin( 0.9, tune_frequencies2_PGM[note], waveform);
+  waves[1]->begin( 0.9, tune_frequencies2_PGM[note] * 1.01, waveform); // detune
+  waves[2]->begin( 0.9, tune_frequencies2_PGM[note] * 1.005, waveform); // detune
+  waves[3]->begin( 0.9, tune_frequencies2_PGM[note] * 1.015, waveform); // detune
   filterf = filterf_max;
   filter0.frequency(filterf);
   env0.noteOn();
@@ -108,6 +113,7 @@ void noteOn(uint8_t note) {
 
 void noteOff(uint8_t note) {
   //Serial.printf("noteOff: note:%d\n", note);
+  digitalWrite(LED_BUILTIN, HIGH);
   env0.noteOff();
 }
 
@@ -125,6 +131,7 @@ void loop() {
   }
  
   arp.update();
+  
   butA.update();
   butB.update();
  
@@ -148,15 +155,15 @@ void loop() {
     
     root_note = map( knobA, 0,1023, 36, 72);
     int bpm = map( knobB, 0,1023, 100, 3000 );
-    filterf_max = map( knobC, 0,1023, 30, 8000);
+    filterf_max = map( knobC, 0,1023, 30, 8000);   
+    //float note_duration =  (float)knobC / 1023;
 
     filter0.frequency(filterf_max);
     
     arp.setRootNote( root_note );
     arp.setBPM( bpm );
     
-    //Serial.printf("knobA:%d knobB:%d knobC:%d \t root:%d bpm:%d filter:%d\n", 
-    //                knobA, knobB, knobC, root_note, bpm, filterf_max);
+    //Serial.printf("knobs:%d %d %d   \n", knobA,knobB,knobC);
     
 //     Filter "envelope"
 //     simple ramp down LFO on frequency
